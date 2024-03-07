@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Aston_intensiv_4</string>
+    <string name="select_a_task">Select a task</string>
+    <string name="task_1">Task 1</string>
+    <string name="task_2">Task 2</string>
+    <string name="person_image">Person Image</string>
+    <string name="name">Name</string>
+    <string name="surname">Surname</string>
+    <string name="telephone">Telephone number</string>
+    <string name="img">Image URL</string>
+    <string name="save">Save</string>
 </resources>
