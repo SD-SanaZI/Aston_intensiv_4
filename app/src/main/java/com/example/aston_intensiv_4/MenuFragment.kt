@@ -17,9 +17,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>(
     }
 
     companion object {
-        fun newInstance(): MenuFragment {
-            return MenuFragment()
-        }
+        fun newInstance() = MenuFragment()
     }
 
     override fun onCreateView(
@@ -33,6 +31,12 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>(
                 .replace(R.id.fragment_container_view_tag, FirstTaskFragment.newInstance(
                     FragmentDataAdapter.getViewDataList("A", "")
                 ),"A")
+                .addToBackStack("A")
+                .commit()
+        }
+        binding.button2.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view_tag, SecondTaskFragment.newInstance())
                 .addToBackStack("A")
                 .commit()
         }

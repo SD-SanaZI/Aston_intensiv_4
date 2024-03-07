@@ -1,6 +1,5 @@
 package com.example.aston_intensiv_4
 
-import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -40,65 +39,57 @@ class FirstTaskFragment : BaseFragment<FragmentTask1Binding>(
         savedInstanceState: Bundle?
     ): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        val bundle = arguments as Bundle?
-        val viewDataList = getViewDataList(bundle)
+        val viewDataList =
+            getSerializableCompat<ViewDataList>(arguments, VIEW_DATA_LIST_KEY) ?: ViewDataList()
+        val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
+        layoutParams.weight = 1f
         viewDataList.list.forEach { viewData ->
             val newView: View = when (viewData) {
-                is ViewData.TextData -> {
-                    val textView = TextView(context)
-                    textView.text = viewData.text
-                    textView.gravity = Gravity.CENTER
-                    textView
-                }
-
-                is ViewData.ButtonData -> {
-                    val button = Button(context)
-                    button.text = viewData.text
-                    val text =
-                        if (viewDataList.tag == "B") "Secret string"
-                        else ""
-                    button.setOnClickListener {
-                        if (viewData.tag == "back") {
-                            parentFragmentManager.popBackStack()
-                        } else {
-                            val a =
-                                parentFragmentManager.findFragmentByTag(viewData.tag)
-                            if (a == null) {
-                                parentFragmentManager.beginTransaction()
-                                    .replace(
-                                        R.id.fragment_container_view_tag, newInstance(
-                                            FragmentDataAdapter.getViewDataList(viewData.tag, text)
-                                        ), viewData.tag
-                                    )
-                                    .addToBackStack(viewData.tag)
-                                    .commit()
-                            }else{
-                                parentFragmentManager.popBackStack(viewData.tag,0)
-                            }
-                        }
-                    }
-                    button
-                }
+                is ViewData.TextData -> createdTextView(viewData)
+                is ViewData.ButtonData -> createdButton(viewData, viewDataList.tag)
             }
             newView.foregroundGravity = Gravity.CENTER
-            val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
-            layoutParams.weight = 1f
             newView.layoutParams = layoutParams
             binding.layout.addView(newView)
         }
         return view
     }
 
-    private fun getViewDataList(bundle: Bundle?): ViewDataList {
-        return if (bundle != null) {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                bundle.getSerializable(VIEW_DATA_LIST_KEY, ViewDataList::class.java)
-                    ?: throw Exception("Null Dialog data")
+    private fun createdTextView(viewData: ViewData.TextData): TextView {
+        val textView = TextView(context)
+        textView.text = viewData.text
+        textView.gravity = Gravity.CENTER
+        return textView
+    }
+
+    private fun createdButton(viewData: ViewData.ButtonData, tag: String): Button {
+        val button = Button(context)
+        button.text = viewData.text
+        val nextFragmentText =
+            if (tag == "B") "Secret string"
+            else ""
+        button.setOnClickListener {
+            if (viewData.tag == "back") {
+                parentFragmentManager.popBackStack()
             } else {
-                bundle.getSerializable(VIEW_DATA_LIST_KEY) as ViewDataList
+                val fragment = parentFragmentManager.findFragmentByTag(viewData.tag)
+                if (fragment == null)
+                    nextFragmentTransaction(viewData, nextFragmentText)
+                else
+                    parentFragmentManager.popBackStack(viewData.tag, 0)
             }
-        } else {
-            ViewDataList("", listOf())
         }
+        return button
+    }
+
+    private fun nextFragmentTransaction(viewData: ViewData.ButtonData, nextFragmentText: String) {
+        parentFragmentManager.beginTransaction()
+            .replace(
+                R.id.fragment_container_view_tag, newInstance(
+                    FragmentDataAdapter.getViewDataList(viewData.tag, nextFragmentText)
+                ), viewData.tag
+            )
+            .addToBackStack(viewData.tag)
+            .commit()
     }
 }

@@ -48,6 +48,6 @@ sealed class ViewData {
 }
 
 data class ViewDataList(
-    val tag: String,
-    val list: List<ViewData>
+    val tag: String = "",
+    val list: List<ViewData> = listOf()
 ) : Serializable
